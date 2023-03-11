@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,139 +6,110 @@ namespace ImGif
 {
     public class Gif : MonoBehaviour
     {
-        public GifRenderType render_on;
+        public GifRenderType renderTarget;
         private SpriteRenderer sprite_renderer;
+        private RawImage raw_image;
         private Image image;
         private SpriteArray sprites;
 
-        public string gif_name;
-        public Texture2D texture;
+        public GifData data;
 
-        [Range(0.01f, 1f)]
-        public float frame_delay = 1f;
+        public bool playOnAwake;
+
+        public bool autoFrameRate;
 
         [Range(0.25f, 2f)]
-        public float play_speed = 1f;
+        public float playSpeed = 1f;
 
-        public bool play_awake;
-
-        public bool auto_frame_rate;
+        [Range(0.01f, 1f)]
+        public float frameDelay = 1f;
 
         [Range(0, 25)]
-        public int loop_times = 0;
+        public int loopTimes = 0;
 
         private void Awake()
         {
-            sprites = GifUtility.Load(gif_name);
+            sprites = GifUtility.Load(data);
 
-            TryGetComponent(out Image image);
-            TryGetComponent(out SpriteRenderer sprite_renderer);
+            GetRendererComponent();
 
-            this.image = image;
-            this.sprite_renderer = sprite_renderer;
-
-            if (play_awake)
-                Run();
+            if (playOnAwake)
+                StartCoroutine(loop());
         }
 
-        public void Run()
+        private void UpdateTexture(Sprite sp)
         {
-            switch (render_on)
+            switch(renderTarget)
             {
                 case GifRenderType.Image:
-                    StartCoroutine(image_loop(FrameRate));
+                    image.sprite = sp;
                     break;
                 case GifRenderType.RawImage:
-                    if (image)
-                        StartCoroutine(image_loop(FrameRate));
-                    else
-                        StartCoroutine(sprite_loop(FrameRate));
+                    raw_image.texture = sp.texture;
                     break;
                 case GifRenderType.SpriteRenderer:
-                    StartCoroutine(sprite_loop(FrameRate));
+                    sprite_renderer.sprite = sp;
                     break;
             }
         }
 
-        private void LoadTextureGif()
+        private void GetRendererComponent()
         {
-            byte[] data = texture.GetRawTextureData();
-            TextAsset asset = new TextAsset(System.Text.Encoding.Default.GetString(data));
-            Debug.Log($"raw data = {System.Text.Encoding.Default.GetString(asset.bytes)}");
-            data = Resources.Load<TextAsset>($"gif/{gif_name}").bytes;
-            Debug.Log($"txt data = {System.Text.Encoding.Default.GetString(data)}");
-
-
-            using (var decoder = new MG.GIF.Decoder(data))
+            switch(renderTarget)
             {
-                List<Sprite> spriteList = new List<Sprite>();
-
-                var img = decoder.NextImage();
-                while (img != null)
-                {
-                    Texture2D tex = img.CreateTexture();
-                    Sprite sp = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-                    spriteList.Add(sp);
-                    img = decoder.NextImage();
-                }
-
-                sprites = new SpriteArray(spriteList);
+                case GifRenderType.Image:
+                    image = GetComponent<Image>();
+                    break;
+                case GifRenderType.RawImage:
+                    raw_image = GetComponent<RawImage>();
+                    break;
+                case GifRenderType.SpriteRenderer:
+                    sprite_renderer = GetComponent<SpriteRenderer>();
+                    break;
             }
         }
 
-        private float FrameRate
+        private float FrameDelay
         {
             get
             {
-                if (auto_frame_rate)
+                if (autoFrameRate)
                 {
-                    return (1f / sprites.Length) * (2.25f - play_speed);
+                    return (1f / sprites.Length) * (2.25f - playSpeed);
                 }
                 else
                 {
-                    return frame_delay;
+                    return frameDelay;
                 }
             }
         }
 
-        IEnumerator image_loop(float delay)
+        public void Play(){
+            StopCoroutine(loop());
+            StartCoroutine(loop());
+        }
+        public void Stop() => StopCoroutine(loop());
+
+        public void PlayOnce() { 
+            loopTimes = 1;
+            Play();
+        }
+
+        IEnumerator loop()
         {
+            float delay = FrameDelay;
             int loops = 1;
             for (int i = 0; i < sprites.Length; i++)
             {
-                image.sprite = sprites.get(i);
+                UpdateTexture(sprites.get(i));
 
                 yield return new WaitForSeconds(delay);
 
                 if (i == sprites.Length - 1)
                 {
-                    if (loop_times > 0)
+                    if (loopTimes > 0)
                     {
-                        if (loops == loop_times)
-                            break;
-                        else
-                            loops++;
-                    }
-
-                    i = -1;
-                }
-            }
-        }
-
-        IEnumerator sprite_loop(float delay)
-        {
-            int loops = 1;
-            for (int i = 0; i < sprites.Length; i++)
-            {
-                sprite_renderer.sprite = sprites.get(i);
-
-                yield return new WaitForSeconds(delay);
-
-                if (i == sprites.Length - 1)
-                {
-                    if (loop_times > 0)
-                    {
-                        if (loops == loop_times)
+                        if (loops == loopTimes)
                             break;
                         else
                             loops++;
