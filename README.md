@@ -1,6 +1,10 @@
 # ImGif
 GIF image player for Unity.
 
+works with Image, RawImage and SpriteRenderer
+
+tested on Windows x64, Android, WebGl
+
 built using [mgGif]("https://github.com/gwaredd/mgGif") 'Gif parser for unity'
 
 # How to use
