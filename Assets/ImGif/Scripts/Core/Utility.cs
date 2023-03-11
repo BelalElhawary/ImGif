@@ -39,8 +39,8 @@ namespace ImGif
     public enum GifRenderType
     {
         Image,
+        RawImage,
         SpriteRenderer,
-        RawImage
     }
 
     [System.Serializable]
