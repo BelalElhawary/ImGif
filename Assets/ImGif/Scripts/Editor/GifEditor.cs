@@ -10,9 +10,6 @@ namespace ImGif
     [CustomEditor(typeof(Gif))]
     public class GifEditor : Editor
     {
-        
-
-
         [MenuItem("Assets/ImGif/Import")]
         public static void ImportGifAsset()
         {
