@@ -1,7 +1,11 @@
 # ImGif
 GIF image player for Unity.
 
-built using [mgGif]("https://github.com/gwaredd/mgGif") 'Gif parser for unity'
+works with Image, RawImage and SpriteRenderer
+
+tested on Windows x64, Android, WebGl
+
+this library is using [mgGif](https://github.com/gwaredd/mgGif) 'Gif parser for unity' to parse gif file byte array to list of texture2d
 
 # How to use
 Download unity package and import it to your project
