@@ -2,13 +2,19 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
+using UnityEditor.IMGUI.Controls;
+using static UnityEngine.GraphicsBuffer;
 
 namespace ImGif
 {
-    public class GifEditor : EditorWindow
+    [CustomEditor(typeof(Gif))]
+    public class GifEditor : Editor
     {
+        
+
+
         [MenuItem("Assets/ImGif/Import")]
-        public static void ShowWindow()
+        public static void ImportGifAsset()
         {
             var path = EditorUtility.OpenFilePanel("Open gif file", "", "gif");
             if (path != string.Empty)

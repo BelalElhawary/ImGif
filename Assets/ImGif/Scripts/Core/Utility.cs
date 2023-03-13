@@ -34,6 +34,26 @@ namespace ImGif
             //stop.Stop();
             //Debug.Log($"Time to generate frames {stop.ElapsedMilliseconds}ms");
         }
+
+        public static GifPreview GetPreview(byte[] data)
+        {
+            GifPreview preview = new GifPreview();
+
+            using (var decoder = new MG.GIF.Decoder(data))
+            {
+                var img = decoder.NextImage();
+                preview.texture = img.CreateTexture();
+                preview.frames = 1;
+                
+                while (img != null)
+                {
+                    preview.frames++;
+                    img = decoder.NextImage();
+                }
+            }
+
+            return preview;
+        }
     }
 
     public enum GifRenderType
@@ -43,7 +63,6 @@ namespace ImGif
         SpriteRenderer,
     }
 
-    [System.Serializable]
     public struct SpriteArray
     {
         private Sprite[] sprites;
@@ -63,5 +82,11 @@ namespace ImGif
         {
             return sprites[index];
         }
+    }
+
+    public class GifPreview
+    {
+        public Texture2D texture;
+        public int frames;
     }
 }
