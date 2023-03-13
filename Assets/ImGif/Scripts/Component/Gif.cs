@@ -14,9 +14,9 @@ namespace ImGif
 
         public GifData data;
 
-        public bool playOnAwake;
+        public bool playOnAwake = true;
 
-        public bool autoFrameRate;
+        public bool autoFrameRate = true;
 
         [Range(0.25f, 2f)]
         public float playSpeed = 1f;
@@ -119,7 +119,17 @@ namespace ImGif
                 }
             }
         }
+#if UNITY_EDITOR
+        [ContextMenu("Switch To FixedGif")]
+        private void SwitchToGif()
+        {
+            var gif = gameObject.AddComponent<FixedGif>();
+            gif.data = data;
+            gif.renderTarget = renderTarget;
+            gif.playOnAwake = playOnAwake;
+            gif.loopTimes = loopTimes;
+            DestroyImmediate(this);
+        }
+#endif
     }
-
-    
 }

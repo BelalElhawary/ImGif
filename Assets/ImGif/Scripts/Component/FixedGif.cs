@@ -17,7 +17,7 @@ namespace ImGif
         [Range(1, 15)]
         public int frameDelay = 1;
 
-        public bool playOnAwake;
+        public bool playOnAwake = true;
 
         [Range(0, 25)]
         public int loopTimes = 0;
@@ -91,6 +91,7 @@ namespace ImGif
 
         private int i = -1;
         private int ignore = 0;
+
         public void FixedUpdate()
         {
             if (!isPlaying)
@@ -120,5 +121,19 @@ namespace ImGif
                 ignore++;
             }
         }
+
+
+#if UNITY_EDITOR
+        [ContextMenu("Switch To Gif")]
+        private void SwitchToGif()
+        {
+            var gif = gameObject.AddComponent<Gif>();
+            gif.data = data;
+            gif.renderTarget = renderTarget;
+            gif.playOnAwake = playOnAwake;
+            gif.loopTimes = loopTimes;
+            DestroyImmediate(this);
+        }
+#endif
     }
 }
