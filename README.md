@@ -3,7 +3,7 @@
 
 works with Image, RawImage and SpriteRenderer
 
-tested on Windows x64, Android, WebGl
+tested on Linux x64, Windows x64, Android, WebGl
 
 this library is using [mgGif](https://github.com/gwaredd/mgGif) 'Gif parser for unity' to parse gif file byte array to list of texture2d
 
