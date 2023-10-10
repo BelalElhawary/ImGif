@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// ReSharper disable once CheckNamespace
 namespace ImGif
 {
     public class FixedGif : MonoBehaviour
     {
         public GifRenderType renderTarget;
-        private SpriteRenderer sprite_renderer;
-        private RawImage raw_image;
-        private Image image;
-        private SpriteArray sprites;
+        private SpriteRenderer _spriteRenderer;
+        private RawImage _rawImage;
+        private Image _image;
+        private SpriteArray _sprites;
 
         public GifData data;
 
@@ -20,18 +21,18 @@ namespace ImGif
         public bool playOnAwake = true;
 
         [Range(0, 25)]
-        public int loopTimes = 0;
+        public int loopTimes;
 
-        private bool isPlaying;
+        private bool _isPlaying;
 
         private void Awake()
         {
-            sprites = GifUtility.Load(data);
+            _sprites = GifUtility.Load(data);
 
             GetRendererComponent();
 
             if (playOnAwake)
-                isPlaying = true;
+                _isPlaying = true;
         }
 
         private void UpdateTexture(Sprite sp)
@@ -39,13 +40,13 @@ namespace ImGif
             switch(renderTarget)
             {
                 case GifRenderType.Image:
-                    image.sprite = sp;
+                    _image.sprite = sp;
                     break;
                 case GifRenderType.RawImage:
-                    raw_image.texture = sp.texture;
+                    _rawImage.texture = sp.texture;
                     break;
                 case GifRenderType.SpriteRenderer:
-                    sprite_renderer.sprite = sp;
+                    _spriteRenderer.sprite = sp;
                     break;
             }
         }
@@ -55,70 +56,70 @@ namespace ImGif
             switch(renderTarget)
             {
                 case GifRenderType.Image:
-                    image = GetComponent<Image>();
+                    _image = GetComponent<Image>();
                     break;
                 case GifRenderType.RawImage:
-                    raw_image = GetComponent<RawImage>();
+                    _rawImage = GetComponent<RawImage>();
                     break;
                 case GifRenderType.SpriteRenderer:
-                    sprite_renderer = GetComponent<SpriteRenderer>();
+                    _spriteRenderer = GetComponent<SpriteRenderer>();
                     break;
             }
         }
 
-        public void Play() => isPlaying = true;
-        public void Stop() => isPlaying = false;
+        public void Play() => _isPlaying = true;
+        public void Stop() => _isPlaying = false;
 
 
         public void PlayOnce() { 
             loopTimes = 1;
-            isPlaying = true;
+            _isPlaying = true;
         }
 
-        private int loops = 1;
+        private int _loops = 1;
         private void LoopRound()
         {
-            if(loops == loopTimes)
+            if(_loops == loopTimes)
             {
-                isPlaying = false;
-                loops = 1;
+                _isPlaying = false;
+                _loops = 1;
             }
             else
             {
-                loops++;
+                _loops++;
             }
         }
 
-        private int i = -1;
-        private int ignore = 0;
+        private int _i = -1;
+        private int _ignore;
 
         public void FixedUpdate()
         {
-            if (!isPlaying)
+            if (!_isPlaying)
                 return;
 
-            if(ignore == 0)
+            if(_ignore == 0)
             {
-                i++;
+                _i++;
 
-                UpdateTexture(sprites.get(i));
+                UpdateTexture(_sprites.get(_i).Item2);
 
-                if (i == sprites.Length - 1)
+                if (_i == _sprites.Length - 1)
                 {
-                    i = -1;
+                    _i = -1;
 
-                    if (loops > 0)
+                    if (_loops > 0)
                         LoopRound();
                 }
 
-                ignore++;
-            }else if(ignore >= frameDelay)
+                _ignore++;
+            }else if(_ignore >= frameDelay)
             {
-                ignore = 0;
+                _ignore = 0;
             }
             else
             {
-                ignore++;
+                _ignore++;
             }
         }
 

@@ -1,5 +1,5 @@
 # ImGif
-GIF image player for Unity.
+**GIF** image player for Unity.
 
 works with Image, RawImage and SpriteRenderer
 
@@ -28,13 +28,13 @@ now you can add Gif or FixedGif Component to your GameObject and drag the gif as
 
 # Components
 
-**Fixed Gif** <sub><sup>(Recommended)</sup></sub>
-
-uses FixedUpdate to update the texture on the target renderer which means delays should be in int value between each frame, you can set this value in the frame delay field.
-
 **Gif**
 
-uses IEnumerator function to loop for every texture in the array, first it will pick the first texture from the array and apply it to the target renderer then it will wait for a specific amount of time given in seconds after that will advance to the next texture.
+uses Update function to loop for every texture in the array, first it will pick the first texture from the array and apply it to the target renderer then it will wait for a specific amount of time given in seconds after that will advance to the next texture.
+
+**Fixed Gif**
+
+uses FixedUpdate to update the texture on the target renderer which means delays should be in int value between each frame, you can set this value in the frame delay field.
 
 **Public methods**
 
@@ -43,3 +43,9 @@ uses IEnumerator function to loop for every texture in the array, first it will 
 `public void Stop()`
 
 `public void PlayOnce()`
+
+# Chose Renderer
+Target your preferred Renderer from **Render Target** option in Gif component
+![alt text](https://raw.githubusercontent.com/BelalElhawary/ImGif/main/screenshots/screenshot-4.png)
+
+**⚠️ Make sure you added the targeted component before running**

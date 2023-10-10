@@ -16,7 +16,7 @@ namespace ImGif
 
             using (var decoder = new MG.GIF.Decoder(data))
             {
-                List<Sprite> spriteList = new List<Sprite>();
+                List<(float, Sprite)> spriteList = new List<(float, Sprite)>();
 
                 var img = decoder.NextImage();
                 while (img != null)
@@ -24,7 +24,8 @@ namespace ImGif
                     Texture2D tex = img.CreateTexture();
                     Debug.Log($"{tex.width} : {tex.height}");
                     Sprite sp = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-                    spriteList.Add(sp);
+                    float delay = img.Delay;
+                    spriteList.Add((delay / 1000f, sp));
                     img = decoder.NextImage();
                 }
 
@@ -65,20 +66,20 @@ namespace ImGif
 
     public struct SpriteArray
     {
-        private Sprite[] sprites;
+        private (float, Sprite)[] sprites;
         public int Length { get { return sprites.Length; } }
 
-        public SpriteArray(Sprite[] sprites)
+        public SpriteArray((float, Sprite)[] sprites)
         {
             this.sprites = sprites;
         }
 
-        public SpriteArray(List<Sprite> sprites)
+        public SpriteArray(List<(float, Sprite)> sprites)
         {
             this.sprites = sprites.ToArray();
         }
 
-        public Sprite get(int index)
+        public (float, Sprite) get(int index)
         {
             return sprites[index];
         }

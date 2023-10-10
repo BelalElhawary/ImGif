@@ -1,40 +1,36 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
+// ReSharper disable once CheckNamespace
 namespace ImGif
 {
     public class Gif : MonoBehaviour
     {
         public GifRenderType renderTarget;
-        private SpriteRenderer sprite_renderer;
-        private RawImage raw_image;
-        private Image image;
-        private SpriteArray sprites;
+        private SpriteRenderer _spriteRenderer;
+        private RawImage _rawImage;
+        private Image _image;
+        private SpriteArray _sprites;
 
         public GifData data;
 
         public bool playOnAwake = true;
 
-        public bool autoFrameRate = true;
-
-        [Range(0.25f, 2f)]
+        [Range(0.25f, 2.0f)]
         public float playSpeed = 1f;
 
-        [Range(0.01f, 1f)]
-        public float frameDelay = 1f;
-
         [Range(0, 25)]
-        public int loopTimes = 0;
+        public int loopTimes;
+
+        private bool _isPlaying;
 
         private void Awake()
         {
-            sprites = GifUtility.Load(data);
+            _sprites = GifUtility.Load(data);
 
             GetRendererComponent();
 
-            if (playOnAwake)
-                StartCoroutine(loop());
+            _isPlaying = playOnAwake;
         }
 
         private void UpdateTexture(Sprite sp)
@@ -42,13 +38,13 @@ namespace ImGif
             switch(renderTarget)
             {
                 case GifRenderType.Image:
-                    image.sprite = sp;
+                    _image.sprite = sp;
                     break;
                 case GifRenderType.RawImage:
-                    raw_image.texture = sp.texture;
+                    _rawImage.texture = sp.texture;
                     break;
                 case GifRenderType.SpriteRenderer:
-                    sprite_renderer.sprite = sp;
+                    _spriteRenderer.sprite = sp;
                     break;
             }
         }
@@ -58,65 +54,62 @@ namespace ImGif
             switch(renderTarget)
             {
                 case GifRenderType.Image:
-                    image = GetComponent<Image>();
+                    _image = GetComponent<Image>();
                     break;
                 case GifRenderType.RawImage:
-                    raw_image = GetComponent<RawImage>();
+                    _rawImage = GetComponent<RawImage>();
                     break;
                 case GifRenderType.SpriteRenderer:
-                    sprite_renderer = GetComponent<SpriteRenderer>();
+                    _spriteRenderer = GetComponent<SpriteRenderer>();
                     break;
-            }
-        }
-
-        private float FrameDelay
-        {
-            get
-            {
-                if (autoFrameRate)
-                {
-                    return (1f / sprites.Length) * (2.25f - playSpeed);
-                }
-                else
-                {
-                    return frameDelay;
-                }
             }
         }
 
         public void Play(){
-            StopCoroutine(loop());
-            StartCoroutine(loop());
+            _loops = 0;
+            _isPlaying = true;
         }
-        public void Stop() => StopCoroutine(loop());
+
+        public void Stop() => _isPlaying = false;
 
         public void PlayOnce() { 
             loopTimes = 1;
-            Play();
+            _isPlaying = true;
         }
 
-        IEnumerator loop()
+        private float _lastTime;
+        private float _delay;
+        private Sprite _sprite;
+        private int _loops = 1;
+        private int _i;
+        public void Update()
         {
-            float delay = FrameDelay;
-            int loops = 1;
-            for (int i = 0; i < sprites.Length; i++)
+            if (!_isPlaying) return;
+
+            _lastTime += Time.deltaTime;
+
+            if(_lastTime>=_delay)
             {
-                UpdateTexture(sprites.get(i));
+                UpdateTexture(_sprite);
 
-                yield return new WaitForSeconds(delay);
+                (_delay, _sprite) = _sprites.get(_i);
+                _delay = _delay / playSpeed;
 
-                if (i == sprites.Length - 1)
+                if (_i == _sprites.Length - 1)
                 {
                     if (loopTimes > 0)
                     {
-                        if (loops == loopTimes)
-                            break;
+                        if (_loops == loopTimes)
+                            _isPlaying = false;
                         else
-                            loops++;
+                            _loops++;
                     }
 
-                    i = -1;
+                    _i = -1;
                 }
+
+                _lastTime = 0;
+                _i++;
             }
         }
 #if UNITY_EDITOR
